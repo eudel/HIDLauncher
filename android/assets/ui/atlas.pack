@@ -1,0 +1,195 @@
+
+atlas.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+button.down
+  rotate: false
+  xy: 1, 75
+  size: 145, 48
+  split: 17, 18, 23, 24
+  orig: 145, 48
+  offset: 0, 0
+  index: -1
+button.hover
+  rotate: false
+  xy: 1, 25
+  size: 145, 48
+  split: 17, 18, 23, 24
+  orig: 145, 48
+  offset: 0, 0
+  index: -1
+button.inactive
+  rotate: false
+  xy: 148, 75
+  size: 145, 48
+  split: 18, 17, 23, 24
+  orig: 145, 48
+  offset: 0, 0
+  index: -1
+button.up
+  rotate: false
+  xy: 148, 25
+  size: 145, 48
+  split: 17, 18, 23, 24
+  orig: 145, 48
+  offset: 0, 0
+  index: -1
+tab.down
+  rotate: false
+  xy: 295, 77
+  size: 142, 46
+  split: 19, 18, 0, 46
+  orig: 142, 46
+  offset: 0, 0
+  index: -1
+tab.up
+  rotate: false
+  xy: 295, 29
+  size: 142, 46
+  orig: 142, 46
+  offset: 0, 0
+  index: -1
+textfield.background
+  rotate: false
+  xy: 439, 83
+  size: 128, 40
+  split: 6, 5, 6, 5
+  orig: 128, 40
+  offset: 0, 0
+  index: -1
+selectbox.down
+  rotate: false
+  xy: 439, 43
+  size: 126, 38
+  split: 5, 21, 0, 38
+  orig: 126, 38
+  offset: 0, 0
+  index: -1
+selectbox.up
+  rotate: false
+  xy: 569, 85
+  size: 126, 38
+  split: 5, 21, 0, 38
+  orig: 126, 38
+  offset: 0, 0
+  index: -1
+textfield.disabled
+  rotate: false
+  xy: 697, 85
+  size: 126, 38
+  split: 5, 4, 0, 38
+  orig: 126, 38
+  offset: 0, 0
+  index: -1
+progressbar.ap.knobBefore
+  rotate: false
+  xy: 1, 1
+  size: 70, 22
+  split: 5, 0, 0, 22
+  orig: 70, 22
+  offset: 0, 0
+  index: -1
+progressbar.background
+  rotate: false
+  xy: 825, 101
+  size: 70, 22
+  split: 5, 0, 5, 4
+  orig: 70, 22
+  offset: 0, 0
+  index: -1
+progressbar.hp.knobBefore
+  rotate: false
+  xy: 73, 1
+  size: 70, 22
+  split: 5, 0, 0, 22
+  orig: 70, 22
+  offset: 0, 0
+  index: -1
+progressbar.knobBefore
+  rotate: false
+  xy: 897, 101
+  size: 70, 22
+  split: 5, 0, 0, 22
+  orig: 70, 22
+  offset: 0, 0
+  index: -1
+progressbar.mp.knobBefore
+  rotate: false
+  xy: 145, 1
+  size: 70, 22
+  split: 5, 0, 0, 22
+  orig: 70, 22
+  offset: 0, 0
+  index: -1
+button.lang
+  rotate: false
+  xy: 969, 91
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+checkbox.off
+  rotate: false
+  xy: 825, 67
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+checkbox.on
+  rotate: false
+  xy: 859, 67
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+scrollpane.background
+  rotate: false
+  xy: 893, 67
+  size: 32, 32
+  split: 11, 9, 9, 9
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+scrollpane.hScrollKnob
+  rotate: false
+  xy: 927, 67
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+scrollpane.vScrollKnob
+  rotate: false
+  xy: 961, 57
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+scrollpane.hScroll
+  rotate: false
+  xy: 217, 7
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+scrollpane.vScroll
+  rotate: false
+  xy: 1003, 107
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+textfield.cursor
+  rotate: false
+  xy: 995, 73
+  size: 4, 16
+  orig: 4, 16
+  offset: 0, 0
+  index: -1
+default.selection
+  rotate: false
+  xy: 295, 26
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
