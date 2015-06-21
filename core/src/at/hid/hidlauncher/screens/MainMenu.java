@@ -35,11 +35,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Base64Coder;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.shephertz.app42.paas.sdk.java.App42Exception;
-import com.shephertz.app42.paas.sdk.java.ServiceAPI;
-import com.shephertz.app42.paas.sdk.java.storage.Storage;
-import com.shephertz.app42.paas.sdk.java.user.User;
-import com.shephertz.app42.paas.sdk.java.user.UserService;
 
 /**
  * @author dunkler_engel
@@ -205,31 +200,24 @@ public class MainMenu implements Screen {
 
 				String dbName = "HIDLAUNCHER";
 				String collectionName = "gameList";
-				Storage storage = HIDLauncher.storageService.findAllDocuments(dbName, collectionName);
-				ArrayList<Storage.JSONDocument> jsonDocList = storage.getJsonDocList();
+				HIDLauncher.app42.storageServiceFindAllDocuments(dbName, collectionName);
+				HIDLauncher.app42.storageGetJsonDocList();
+				ArrayList<String> saveNames = HIDLauncher.app42.storageGetSaveValues("name");
+				ArrayList<String> saveVersions = HIDLauncher.app42.storageGetSaveValues("version");
 
 				int i;
-				for (i = 0; i < jsonDocList.size(); i++) {
-					String name = "", version = "", lokal = "";
-
-					try {
-						JSONObject json = new JSONObject(jsonDocList.get(i).getJsonDoc());
-						name = json.getString("name");
-						version = json.getString("version");
-					} catch (Exception e) {
-						HIDLauncher.error(this.getClass().toString(), "error creating games list", e);
-					}
-
-					FileHandle fhGameVersion = Gdx.files.external(".hidlauncher/" + name + "/version.txt");
+				for (i = 0; i < saveNames.size(); i++) {
+					String lokal = "";
+					FileHandle fhGameVersion = Gdx.files.external(".hidlauncher/" + saveNames.get(i) + "/version.txt");
 					if (fhGameVersion.exists()) {
 						lokal = fhGameVersion.readString();
 					}
-					Label lblName = new Label(name, skin);
-					Label lblVersion = new Label(version, skin);
+					Label lblName = new Label(saveNames.get(i), skin);
+					Label lblVersion = new Label(saveVersions.get(i), skin);
 					Label lblLokal = new Label(lokal, skin);
-					lblName.setName(name);
-					lblVersion.setName(name);
-					lblLokal.setName(name);
+					lblName.setName(saveNames.get(i));
+					lblVersion.setName(saveNames.get(i));
+					lblLokal.setName(saveNames.get(i));
 
 					table1.add(lblName);
 					table1.add(lblVersion);
@@ -257,41 +245,31 @@ public class MainMenu implements Screen {
 								}
 							}
 						}
-						ServiceAPI serviceAPITts = new ServiceAPI("_e4afdcbaee7153a5a87a561eec51f33c87cbf5758beb30b39926b4135d37e3fe", "cad8aef024fe2ab6d0d2ecb6258b0d0a49d6185fde89abca519aac1226c8c5c6");
-						UserService userServiceTts = serviceAPITts.buildUserService();
-						ArrayList<User> allUsersTts = null;
-						try {
-							allUsersTts = userServiceTts.getAllUsers();
-						} catch (App42Exception e) {
-							int errorCode = e.getAppErrorCode();
-							switch (errorCode) {
-								case 2006:
-
-									break;
-							}
-						}
+						HIDLauncher.app42.userServiceGetAllUsers();
+						int usercount = 0;
+						usercount = HIDLauncher.app42.userServiceGetUserCount();
 						boolean userCreated = false;
-						if (allUsersTts != null) {
-							for (int i = 0; i < allUsersTts.size(); i++) {
-								if (allUsersTts.get(i).getUserName().equals(HIDLauncher.user.getUserName())) {
+						if (usercount != 0) {
+							for (int i = 0; i < usercount; i++) {
+								if (HIDLauncher.app42.userlistGetUserName(i).equals(HIDLauncher.app42.userGetUserName())) {
 									userCreated = true;
 								}
 							}
 						}
 						if (userCreated == false) {
-							String pwdTts = Base64Coder.decodeString(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("pass"));
-							User userTts = userServiceTts.createUser(HIDLauncher.user.getUserName(), pwdTts, HIDLauncher.user.getEmail());
-							userTts = userServiceTts.authenticate(HIDLauncher.user.getUserName(), pwdTts);
-							userServiceTts.setSessionId(userTts.getSessionId());
-							userTts = userServiceTts.createOrUpdateProfile(HIDLauncher.user);
-							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdTts", userServiceTts.getSessionId());
+							String pwd = Base64Coder.decodeString(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("pass"));
+							HIDLauncher.app42.createUser(HIDLauncher.app42.userGetUserName(), pwd, HIDLauncher.app42.userGetEmail());
+							HIDLauncher.app42.userServiceAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
+							HIDLauncher.app42.setSessionId(HIDLauncher.app42.userGetSessionId());
+							HIDLauncher.app42.userServiceCreateOrUpdateProfile();
+							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdTts", HIDLauncher.app42.userGetSessionId());
 							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
-							HIDLauncher.log(this.getClass().toString(), "created TableTopSimulator user " + userTts.getProfile().getFirstName());
+							HIDLauncher.log(this.getClass().toString(), "created TableTopSimulator user " + HIDLauncher.app42.userGetUserName());
 						} else {
-							User userTts = userServiceTts.getUser(HIDLauncher.user.getUserName());
-							userServiceTts.setSessionId(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("sessionIdTts"));
-							userTts = userServiceTts.createOrUpdateProfile(HIDLauncher.user);
-							HIDLauncher.log(this.getClass().toString(), "updated TableTopSimulator user " + userTts.getProfile().getFirstName());
+							HIDLauncher.app42.getUser(HIDLauncher.app42.userGetUserName());
+							HIDLauncher.app42.setSessionId(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("sessionIdTts"));
+							HIDLauncher.app42.userServiceCreateOrUpdateProfile();
+							HIDLauncher.log(this.getClass().toString(), "updated TableTopSimulator user " + HIDLauncher.app42.userGetUserName());
 						}
 					}
 				});
@@ -303,11 +281,13 @@ public class MainMenu implements Screen {
 		selProfile = new SelectBox<String>(skin);
 		ArrayList<String> newItems = new ArrayList<String>();
 
-		for (int i = 0; i < HIDLauncher.profile.getProfiles().size(); i++) {
-			newItems.add(HIDLauncher.profile.getProfiles().get(i).getName());
+		if (HIDLauncher.profile.getProfiles() != null) {
+			for (int i = 0; i < HIDLauncher.profile.getProfiles().size(); i++) {
+				newItems.add(HIDLauncher.profile.getProfiles().get(i).getName());
+			}
+			String[] data = new String[newItems.size()];
+			selProfile.setItems(newItems.toArray(data));
 		}
-		String[] data = new String[newItems.size()];
-		selProfile.setItems(newItems.toArray(data));
 
 		// creating buttons
 		HIDLauncher.debug(this.getClass().toString(), "creating buttons");
@@ -372,31 +352,25 @@ public class MainMenu implements Screen {
 
 					String dbName = "HIDLAUNCHER";
 					String collectionName = "gameList";
-					Storage storage = HIDLauncher.storageService.findAllDocuments(dbName, collectionName);
-					ArrayList<Storage.JSONDocument> jsonDocList = storage.getJsonDocList();
+					HIDLauncher.app42.storageServiceFindAllDocuments(dbName, collectionName);
+					HIDLauncher.app42.storageGetJsonDocList();
+					ArrayList<String> saveNames = HIDLauncher.app42.storageGetSaveValues("name");
+					ArrayList<String> saveVersions = HIDLauncher.app42.storageGetSaveValues("version");
 
 					int i;
-					for (i = 0; i < jsonDocList.size(); i++) {
-						String name = "", version = "", lokal = "";
+					for (i = 0; i < saveNames.size(); i++) {
+						String lokal = "";
 
-						try {
-							JSONObject json = new JSONObject(jsonDocList.get(i).getJsonDoc());
-							name = json.getString("name");
-							version = json.getString("version");
-						} catch (Exception e) {
-							HIDLauncher.error(this.getClass().toString(), "error creating games list", e);
-						}
-
-						FileHandle fhGameVersion = Gdx.files.external(".hidlauncher/" + name + "/version.txt");
+						FileHandle fhGameVersion = Gdx.files.external(".hidlauncher/" + saveNames.get(i) + "/version.txt");
 						if (fhGameVersion.exists()) {
 							lokal = fhGameVersion.readString();
 						}
-						Label lblName = new Label(name, skin);
-						Label lblVersion = new Label(version, skin);
+						Label lblName = new Label(saveNames.get(i), skin);
+						Label lblVersion = new Label(saveVersions.get(i), skin);
 						Label lblLokal = new Label(lokal, skin);
-						lblName.setName(name);
-						lblVersion.setName(name);
-						lblLokal.setName(name);
+						lblName.setName(saveNames.get(i));
+						lblVersion.setName(saveNames.get(i));
+						lblLokal.setName(saveNames.get(i));
 
 						table1.add(lblName);
 						table1.add(lblVersion);
@@ -431,14 +405,17 @@ public class MainMenu implements Screen {
 					HIDLauncher.debug(this.getClass().toString(), "starting download and game");
 					String dbName = "HIDLAUNCHER";
 					String collectionName = "gameList";
-					Storage storage = HIDLauncher.storageService.findAllDocuments(dbName, collectionName);
-					ArrayList<Storage.JSONDocument> jsonDocList = storage.getJsonDocList();
+					HIDLauncher.app42.storageServiceFindAllDocuments(dbName, collectionName);
+					HIDLauncher.app42.storageGetJsonDocList();
+					ArrayList<String> saveNames = HIDLauncher.app42.storageGetSaveValues("name");
+					ArrayList<String> saveVersions = HIDLauncher.app42.storageGetSaveValues("version");
 					int indexSelectedGame = 0;
 
-					for (int i = 0; i < jsonDocList.size(); i++) {
-						String name = "", version = "";
+					for (int i = 0; i < saveNames.size(); i++) {
 						try {
-							JSONObject json = new JSONObject(jsonDocList.get(i).getJsonDoc());
+							String name = "", version = "";
+							HIDLauncher.app42.storageGetJsonDocList();
+							JSONObject json = new JSONObject(HIDLauncher.app42.storageGetJsonDoc(i));
 							name = json.getString("name");
 							if (name.equals(HIDLauncher.gameProfile.getGameName())) {
 								indexSelectedGame = i;
@@ -452,10 +429,10 @@ public class MainMenu implements Screen {
 							HIDLauncher.error(this.getClass().toString(), "error creating games list", e);
 						}
 					}
-					
+
 					String name = "";
 					try {
-						name = new JSONObject(jsonDocList.get(indexSelectedGame).getJsonDoc()).getString("name");
+						name = new JSONObject(HIDLauncher.app42.storageGetJsonDoc(indexSelectedGame)).getString("name");
 					} catch (JSONException e1) {
 						HIDLauncher.error(this.getClass().toString(), "error getting selected game name", e1);
 					}
@@ -463,7 +440,7 @@ public class MainMenu implements Screen {
 					try {
 						URL url = null;
 						if (name.equals("TableTopSimulator")) {
-						url = new URL("https://db.tt/wRWXtYa3");
+							url = new URL("https://db.tt/wRWXtYa3");
 						}
 						HIDLauncher.log(this.getClass().toString(), "downloading new game version: " + fhGame.path());
 						Files.copy(url.openStream(), fhGame.file().toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -496,7 +473,7 @@ public class MainMenu implements Screen {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				HIDLauncher.debug(this.getClass().toString(), "switching to Login screen");
-				HIDLauncher.userService.logout(HIDLauncher.profile.getClientToken());
+				HIDLauncher.app42.userServiceLogout(HIDLauncher.profile.getClientToken());
 				HIDLauncher.profile.setSelectedUser(null);
 				HIDLauncher.profile.setClientToken(null);
 				HIDLauncher.profile.saveProfile(HIDLauncher.profile);

@@ -158,13 +158,14 @@ public class Login implements Screen {
 		HashMap<String, String> otherMetaHeaders = new HashMap<String, String>();
 		otherMetaHeaders.put("emailAuth", "true");
 		otherMetaHeaders.put("userProfile", "true");
-		HIDLauncher.userService.setOtherMetaHeaders(otherMetaHeaders);
-		HIDLauncher.user = HIDLauncher.userService.authenticate(txtMail.getText(), txtPass.getText());
-		HIDLauncher.profile.setClientToken(HIDLauncher.user.getSessionId());
+		HIDLauncher.app42.userServiceSetOtherMetaHeaders(otherMetaHeaders);
+		HIDLauncher.app42.userServiceAuthenticate(txtMail.getText(), txtPass.getText());
+		HIDLauncher.profile.setClientToken(HIDLauncher.app42.userGetSessionId());
 
-		String uuid = HIDLauncher.user.getUserName();
+		String uuid = HIDLauncher.app42.userGetUserName();
 		if (!uuid.isEmpty()) {
 			HIDLauncher.profile.setSelectedUser(uuid);
+			HIDLauncher.playerProfile.setDisplayName(HIDLauncher.app42.userGetFirstName());
 
 			ArrayList<PlayerProfile> authenticationDB = new ArrayList<PlayerProfile>();
 			authenticationDB.add(new PlayerProfile(HIDLauncher.profile.getSelectedProfile(), "", uuid, HIDLauncher.profile.getSelectedProfile()));

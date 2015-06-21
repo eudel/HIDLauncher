@@ -4,7 +4,9 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+
 import at.hid.hidlauncher.HIDLauncher;
+import at.hid.hidlauncher.android.api.AndroidApp42;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
@@ -13,6 +15,6 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		config.useAccelerometer = false;
 		config.useCompass = false;
-		initialize(new HIDLauncher(), config);
+		initialize(new HIDLauncher(new AndroidApp42()), config);
 	}
 }

@@ -7,8 +7,6 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.json.JSONObject;
-
 import at.hid.hidlauncher.GameProfile;
 import at.hid.hidlauncher.HIDLauncher;
 
@@ -28,7 +26,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.shephertz.app42.paas.sdk.java.storage.Storage;
 
 /**
  * @author dunkler_engel
@@ -114,21 +111,14 @@ public class EditProfile implements Screen {
 		ArrayList<String> newItems = new ArrayList<String>();
 		String dbName = "HIDLAUNCHER";
 		String collectionName = "gameList";
-		Storage storage = HIDLauncher.storageService.findAllDocuments(dbName, collectionName);
-		ArrayList<Storage.JSONDocument> jsonDocList = storage.getJsonDocList();
+		HIDLauncher.app42.storageServiceFindAllDocuments(dbName, collectionName);
+		HIDLauncher.app42.storageGetJsonDocList();
+		newItems = HIDLauncher.app42.storageGetSaveValues("name");
 		int indexSelectedGame = 0;
 		
-		for (int i = 0; i < jsonDocList.size(); i++) {
-			String name = "";
-			try {
-				JSONObject json = new JSONObject(jsonDocList.get(i).getJsonDoc());
-				name = json.getString("name");
-				newItems.add(name);
-				if(name.equals(HIDLauncher.gameProfile.getGameName())) {
-					indexSelectedGame = i;
-				}
-			} catch (Exception e) {
-				HIDLauncher.error(this.getClass().toString(), "error creating games list", e);
+		for (int i = 0; i < newItems.size(); i++) {
+			if(newItems.get(i).equals(HIDLauncher.gameProfile.getGameName())) {
+				indexSelectedGame = i;
 			}
 		}
 		

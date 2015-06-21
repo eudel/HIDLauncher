@@ -14,8 +14,8 @@ import com.badlogic.gdx.utils.Json;
  *
  */
 public class Profile {
-	private ArrayList<GameProfile> profiles;
-	private ArrayList<PlayerProfile> authenticationDB;
+	private ArrayList<GameProfile> profiles = new ArrayList<GameProfile>();
+	private ArrayList<PlayerProfile> authenticationDB = new ArrayList<PlayerProfile>();
 	private String clientToken, selectedProfile, selectedUser;
 	
 	/**

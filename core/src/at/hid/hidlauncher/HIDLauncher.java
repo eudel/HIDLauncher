@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import at.hid.hidlauncher.api.App42;
 import at.hid.hidlauncher.screens.MainMenu;
 import at.hid.hidlauncher.screens.Login;
 
@@ -16,28 +17,20 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.I18NBundle;
-import com.shephertz.app42.paas.sdk.java.App42API;
-import com.shephertz.app42.paas.sdk.java.ServiceAPI;
-import com.shephertz.app42.paas.sdk.java.session.Session;
-import com.shephertz.app42.paas.sdk.java.session.SessionService;
-import com.shephertz.app42.paas.sdk.java.storage.StorageService;
-import com.shephertz.app42.paas.sdk.java.user.User;
-import com.shephertz.app42.paas.sdk.java.user.UserService;
 
 public class HIDLauncher extends Game {
-	
+
 	public static final String TITLE = "HIDLauncher", VERSION = "0.0.1-alpha";
 	public static boolean DEBUG;
 	public static Profile profile = new Profile();
 	public static PlayerProfile playerProfile = new PlayerProfile();
 	public static GameProfile gameProfile = new GameProfile();
 	public static I18NBundle langBundle;
-	public static ServiceAPI serviceAPI;
-	public static UserService userService;
-	public static User user;
-	public static StorageService storageService;
-	public static SessionService sessionService;
-	public static Session session;
+	public static App42 app42 = null;
+
+	public HIDLauncher(App42 app42) {
+		HIDLauncher.app42 = app42;
+	}
 
 	/**
 	 * creates the language bundle
@@ -113,10 +106,10 @@ public class HIDLauncher extends Game {
 
 	@Override
 	public void create() {
-		App42API.initialize("3208bd2374491ab3f1be0dad5e69e451f2dfa814013d3ab17590361f57348745", "f7200050ace4b5395d3697d7cf45d66de64a5c62702a01e65100e5c74723cd0a");
-		userService = App42API.buildUserService();
-		storageService = App42API.buildStorageService();
-		
+		app42.initialize("3208bd2374491ab3f1be0dad5e69e451f2dfa814013d3ab17590361f57348745", "f7200050ace4b5395d3697d7cf45d66de64a5c62702a01e65100e5c74723cd0a");
+		app42.buildUserService();
+		app42.buildStorageService();
+
 		DEBUG = Gdx.app.getPreferences(TITLE).getBoolean("debug");
 		logrotate();
 		if (DEBUG) {
@@ -140,12 +133,14 @@ public class HIDLauncher extends Game {
 		FileHandle fhLauncherProfiles = Gdx.files.external(".hidlauncher/launcher_profiles.json");
 		if (fhLauncherProfiles.exists()) {
 			profile = profile.loadProfile(".hidlauncher/launcher_profiles.json");
-			
+
 			if ((profile.getSelectedUser() != null) && (!profile.getSelectedUser().equals(""))) {
 				playerProfile = playerProfile.loadPlayerProfile(profile.getSelectedUser());
-				gameProfile = gameProfile.loadGameProfile(profile.getSelectedProfile());
-				user = userService.getUser(profile.getSelectedUser());
-				user.setSessionId(profile.getClientToken());
+				if (profile.getSelectedProfile() != null) {
+					gameProfile = gameProfile.loadGameProfile(profile.getSelectedProfile());
+				}
+				app42.getUser(profile.getSelectedUser());
+				app42.setSessionId(profile.getClientToken());
 				setScreen(new MainMenu());
 			} else {
 				setScreen(new Login());
