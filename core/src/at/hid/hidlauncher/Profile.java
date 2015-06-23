@@ -5,6 +5,9 @@ package at.hid.hidlauncher;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
@@ -83,11 +86,63 @@ public class Profile {
 	 * saves the profile file to disk
 	 * @param profile the profile to save
 	 */
-	public void saveProfile(Profile profile) {
-		 Json json = new Json();
-		 FileHandle fhSettings = Gdx.files.external(".hidlauncher/launcher_profiles.json");
-		 String profileAsText = json.prettyPrint(profile);
-		 fhSettings.writeString(profileAsText, false);
+	public boolean saveProfile() {
+		FileHandle fhSettings = null;
+		if (Gdx.files.isExternalStorageAvailable()) {
+			fhSettings = Gdx.files.external(".hidlauncher/launcher_profiles.json");
+		} else {
+			fhSettings = Gdx.files.local(".hidlauncher/launcher_profiles.json");
+		}
+		JSONObject json = new JSONObject();
+		JSONArray profiles = new JSONArray();
+		JSONArray authenticationDB = new JSONArray();
+		try {
+			for (int i = 0; i < this.profiles.size(); i++) {
+				JSONObject profile = new JSONObject();
+				profile.put("name", this.profiles.get(i).getName());
+				profile.put("gameName", this.profiles.get(i).getGameName());
+				if (this.profiles.get(i).getLauncherVisibility() != 0)
+					profile.put("launcherVisibility", this.profiles.get(i).getLauncherVisibility());
+				
+				if (this.profiles.get(i).getResolutionX() != 0) {
+					profile.put("resolutionX", this.profiles.get(i).getResolutionX());
+					profile.put("resolutionY", this.profiles.get(i).getResolutionY());
+				}
+				profile.put("useVersion", this.profiles.get(i).getUseVersion());
+				
+				profiles.put(profile);
+			}
+			json.put("profiles", profiles);
+			
+			for (int i = 0; i < this.authenticationDB.size(); i++) {
+				JSONObject authenticatedUser = new JSONObject();
+				authenticatedUser.put("username", this.authenticationDB.get(i).getUsername());
+				authenticatedUser.put("accessToken", this.authenticationDB.get(i).getAccessToken());
+				authenticatedUser.put("uuid", this.authenticationDB.get(i).getUuid());
+				authenticatedUser.put("displayName", this.authenticationDB.get(i).getDisplayName());
+				
+				authenticationDB.put(authenticatedUser);
+			}
+			json.put("authenticationDB", authenticationDB);
+			
+			json.put("clientToken", getClientToken());
+			json.put("selectedProfile", getSelectedProfile());
+			json.put("selectedUser", getSelectedUser());
+			String profileAsText = json.toString();
+			
+			profileAsText = profileAsText.replaceAll("\\{", "{\n");
+			profileAsText = profileAsText.replaceAll(",", ",\n");
+			profileAsText = profileAsText.replaceAll("\\[", "\n[\n");
+			profileAsText = profileAsText.replaceAll("\\}", "}\n");
+			profileAsText = profileAsText.replaceAll("\"\\}", "\"\n}");
+			profileAsText = profileAsText.replaceAll("\\]", "]\n");
+			
+			fhSettings.writeString(profileAsText, false, "UTF-8");
+		} catch(Exception e) {
+			HIDLauncher.error(this.getClass().toString(), "error creating PlayerProfile JSONObject", e);
+			return false;
+		}
+		return true;
 	}
 	
 	/**

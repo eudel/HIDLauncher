@@ -254,7 +254,7 @@ public class NewProfile implements Screen {
 					profile.setUseVersion(null);
 				}
 				HIDLauncher.profile.getProfiles().add(profile);
-				HIDLauncher.profile.saveProfile(HIDLauncher.profile);
+				HIDLauncher.profile.saveProfile();
 				dispose();
 				((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
 			}

@@ -236,7 +236,7 @@ public class MainMenu implements Screen {
 							if (profiles.get(i).getName().equals(HIDLauncher.profile.getSelectedProfile())) {
 								profiles.get(i).setGameName(gameName);
 								HIDLauncher.gameProfile.setGameName(gameName);
-								HIDLauncher.profile.saveProfile(HIDLauncher.profile);
+								HIDLauncher.profile.saveProfile();
 								FileHandle fhGame = Gdx.files.external(".hidlauncher/" + gameName + "/version.txt");
 								if (fhGame.exists()) {
 									lblInfo.setText(lblInfo.getText() + HIDLauncher.getLangBundle().format("MainMenu.lblInfo.play") + "\n" + gameName);
@@ -389,7 +389,7 @@ public class MainMenu implements Screen {
 								if (profiles.get(i).getName().equals(HIDLauncher.profile.getSelectedProfile())) {
 									profiles.get(i).setGameName(gameName);
 									HIDLauncher.gameProfile.setGameName(gameName);
-									HIDLauncher.profile.saveProfile(HIDLauncher.profile);
+									HIDLauncher.profile.saveProfile();
 									FileHandle fhGame = Gdx.files.external(".hidlauncher/" + gameName + "/version.txt");
 									if (fhGame.exists()) {
 										lblInfo.setText(lblInfo.getText() + HIDLauncher.getLangBundle().format("MainMenu.lblInfo.play") + "\n" + gameName);
@@ -476,7 +476,7 @@ public class MainMenu implements Screen {
 				HIDLauncher.app42.userServiceLogout(HIDLauncher.profile.getClientToken());
 				HIDLauncher.profile.setSelectedUser(null);
 				HIDLauncher.profile.setClientToken(null);
-				HIDLauncher.profile.saveProfile(HIDLauncher.profile);
+				HIDLauncher.profile.saveProfile();
 				((Game) Gdx.app.getApplicationListener()).setScreen(new Login());
 				dispose();
 			}

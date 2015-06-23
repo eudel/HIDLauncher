@@ -295,7 +295,7 @@ public class EditProfile implements Screen {
 						HIDLauncher.profile.getProfiles().set(i, profile);
 					}
 				}
-				HIDLauncher.profile.saveProfile(HIDLauncher.profile);
+				HIDLauncher.profile.saveProfile();
 				dispose();
 				((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
 			}
