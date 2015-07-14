@@ -7,8 +7,11 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+
 import at.hid.hidlauncher.GameProfile;
 import at.hid.hidlauncher.HIDLauncher;
+import at.hid.hidlauncher.PlayerProfile;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -37,10 +40,10 @@ public class EditProfile implements Screen {
 	private TextureAtlas atlas;
 	private Skin skin;
 	private Table table;
-	private Label lblHeading, lblName, lblGame;
+	private Label lblHeading, lblName, lblGame, lblUser;
 	private TextButton btnCancel, btnOpenDir, btnSaveProfile;
 	private TextField txtName, txtResX, txtResY;
-	private SelectBox<String> sbGame, sbLauncherVisibility, sbUseVersion;
+	private SelectBox<String> sbGame, sbUser, sbLauncherVisibility, sbUseVersion;
 	private CheckBox cbResolution, cbAskAssistance, cbLauncherVisibility, cbUseVersion;
 
 	private boolean launcherVisibilityDisabled = true, useVersionDisabled = true;
@@ -91,6 +94,7 @@ public class EditProfile implements Screen {
 		HIDLauncher.debug(this.getClass().toString(), "creating labels");
 		lblName = new Label(HIDLauncher.getLangBundle().format("EditProfile.lblName.text"), skin);
 		lblGame = new Label(HIDLauncher.getLangBundle().format("EditProfile.lblGame.text"), skin);
+		lblUser = new Label(HIDLauncher.getLangBundle().format("EditProfile.lblUser.text"), skin);
 
 		// creating textfields
 		txtName = new TextField(profile.getName(), skin);
@@ -105,6 +109,7 @@ public class EditProfile implements Screen {
 		// creating selectboxes
 		HIDLauncher.debug(this.getClass().toString(), "creating selectboxes");
 		sbGame = new SelectBox<String>(skin);
+		sbUser = new SelectBox<String>(skin);
 		sbLauncherVisibility = new SelectBox<String>(skin);
 		sbUseVersion = new SelectBox<String>(skin);
 
@@ -126,6 +131,17 @@ public class EditProfile implements Screen {
 		sbGame.setItems(newItems.toArray(data));
 		sbGame.setSelectedIndex(indexSelectedGame);
 		
+		newItems.clear();
+		ArrayList<PlayerProfile> authenticationDB = HIDLauncher.profile.getAuthenticationDB();
+		for (int i = 0; i < authenticationDB.size(); i++) {
+			newItems.add(authenticationDB.get(i).getDisplayName());
+		}
+		data = new String[newItems.size()];
+		newItems.toArray(data);
+		sbUser.setItems(data);
+		if (HIDLauncher.playerProfile.getDisplayName() != null) {
+			sbUser.setSelected(HIDLauncher.playerProfile.getDisplayName());
+		}
 		
 		newItems.clear();
 		newItems.add(HIDLauncher.getLangBundle().format("EditProfile.sbLauncherVisibility.text"));
@@ -312,6 +328,8 @@ public class EditProfile implements Screen {
 		table.add(txtName).colspan(2).width(400).spaceBottom(15).row();
 		table.add(lblGame).left().spaceBottom(15);
 		table.add(sbGame).width(400).colspan(2).spaceBottom(15).row();
+		table.add(lblUser).left().spaceBottom(15);
+		table.add(sbUser).width(400).colspan(2).spaceBottom(15).row();
 		table.add(cbResolution).left().spaceBottom(15);
 		table.add(txtResX).spaceBottom(15);
 		table.add(txtResY).spaceBottom(15).row();

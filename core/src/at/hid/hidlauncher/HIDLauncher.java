@@ -2,6 +2,8 @@ package at.hid.hidlauncher;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -74,6 +76,14 @@ public class HIDLauncher extends Game {
 		fhLog.writeString(sdf.format(date) + tag + ": ERROR: " + message + "\n", true, "UTF-8");
 		fhLog.writeString(t + "\n", true, "UTF-8");
 	}
+	
+	public static void error(String tag, String message) {
+		FileHandle fhLog = Gdx.files.external(".hidlauncher/logs/latest.log");
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss: ");
+		Gdx.app.error(tag, message);
+		fhLog.writeString(sdf.format(date) + tag + ": ERROR: " + message + "\n", true, "UTF-8");
+	}
 
 	public void logrotate() {
 		FileHandle fhLog = Gdx.files.external(".hidlauncher/logs/latest.log");
@@ -132,7 +142,7 @@ public class HIDLauncher extends Game {
 
 		FileHandle fhLauncherProfiles = Gdx.files.external(".hidlauncher/launcher_profiles.json");
 		if (fhLauncherProfiles.exists()) {
-			profile = profile.loadProfile(".hidlauncher/launcher_profiles.json");
+			profile.loadProfile();
 
 			if ((profile.getSelectedUser() != null) && (!profile.getSelectedUser().equals(""))) {
 				playerProfile = playerProfile.loadPlayerProfile(profile.getSelectedUser());
@@ -143,10 +153,10 @@ public class HIDLauncher extends Game {
 				app42.setSessionId(profile.getClientToken());
 				setScreen(new MainMenu());
 			} else {
-				setScreen(new Login());
+				setScreen(new Login("", ""));
 			}
 		} else {
-			setScreen(new Login());
+			setScreen(new Login("", ""));
 		}
 	}
 
@@ -173,5 +183,17 @@ public class HIDLauncher extends Game {
 	@Override
 	public void dispose() {
 		super.dispose();
+		
+	}
+	
+	public static boolean inetConnection() {
+		try {
+			final URLConnection connection = new URL("http://api.shephertz.com/").openConnection();
+			connection.connect();
+			log("HIDLauncher", "Internet connection available.");
+			return true;
+		} catch (final Exception e) {
+			return false;
+		}
 	}
 }

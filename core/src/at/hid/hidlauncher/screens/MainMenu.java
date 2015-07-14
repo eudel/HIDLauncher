@@ -245,32 +245,45 @@ public class MainMenu implements Screen {
 								}
 							}
 						}
-						HIDLauncher.app42.userServiceGetAllUsers();
-						int usercount = 0;
-						usercount = HIDLauncher.app42.userServiceGetUserCount();
-						boolean userCreated = false;
-						if (usercount != 0) {
-							for (int i = 0; i < usercount; i++) {
-								if (HIDLauncher.app42.userlistGetUserName(i).equals(HIDLauncher.app42.userGetUserName())) {
-									userCreated = true;
-								}
-							}
-						}
-						if (userCreated == false) {
+						HIDLauncher.app42.serviceAPITts();
+						HIDLauncher.app42.buildUserServiceTts();
+						HIDLauncher.app42.userServiceTtsGetAllUsers();
+						boolean userTtsCreated = HIDLauncher.app42.userServiceTtsIsUserCreated();
+						
+						if (userTtsCreated == false) {
 							String pwd = Base64Coder.decodeString(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("pass"));
-							HIDLauncher.app42.createUser(HIDLauncher.app42.userGetUserName(), pwd, HIDLauncher.app42.userGetEmail());
-							HIDLauncher.app42.userServiceAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
-							HIDLauncher.app42.setSessionId(HIDLauncher.app42.userGetSessionId());
-							HIDLauncher.app42.userServiceCreateOrUpdateProfile();
-							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdTts", HIDLauncher.app42.userGetSessionId());
+							HIDLauncher.app42.userServiceTtsCreateUser(HIDLauncher.app42.userGetUserName(), pwd, HIDLauncher.app42.userGetEmail());
+							HIDLauncher.app42.userServiceTtsAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
+							HIDLauncher.app42.userServiceTtsGetUser(HIDLauncher.app42.userGetUserName());
+//							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdTts", HIDLauncher.app42.userServiceTtsGetSessionId());
 							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
-							HIDLauncher.log(this.getClass().toString(), "created TableTopSimulator user " + HIDLauncher.app42.userGetUserName());
+							HIDLauncher.log(this.getClass().toString(), "created TableTopSimulator user " + HIDLauncher.app42.userGetFirstName());
 						} else {
-							HIDLauncher.app42.getUser(HIDLauncher.app42.userGetUserName());
-							HIDLauncher.app42.setSessionId(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("sessionIdTts"));
-							HIDLauncher.app42.userServiceCreateOrUpdateProfile();
-							HIDLauncher.log(this.getClass().toString(), "updated TableTopSimulator user " + HIDLauncher.app42.userGetUserName());
+							HIDLauncher.app42.userServiceTtsGetUser(HIDLauncher.app42.userGetUserName());
+							System.out.println(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("sessionIdTts"));
+//							HIDLauncher.app42.userServiceTtsSetSessionId(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("sessionIdTts"));
+							HIDLauncher.log(this.getClass().toString(), "updated TableTopSimulator user " + HIDLauncher.app42.userGetFirstName());
 						}
+						
+						HIDLauncher.app42.serviceAPIHvr();
+						HIDLauncher.app42.buildUserServiceHvr();
+						HIDLauncher.app42.userServiceHvrGetAllUsers();
+						boolean userHvrCreated = HIDLauncher.app42.userServiceHvrIsUserCreated();
+						
+						if (userHvrCreated == false) {
+							String pwd = Base64Coder.decodeString(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("pass"));
+							HIDLauncher.app42.userServiceHvrCreateUser(HIDLauncher.app42.userGetUserName(), pwd, HIDLauncher.app42.userGetEmail());
+							HIDLauncher.app42.userServiceHvrAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
+							HIDLauncher.app42.userServiceHvrGetUser(HIDLauncher.app42.userGetUserName());
+//							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdHvr", HIDLauncher.app42.userServiceHvrGetSessionId());
+							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
+							HIDLauncher.log(this.getClass().toString(), "created HardVacuumReloaded user " + HIDLauncher.app42.userGetFirstName());
+						} else {
+							HIDLauncher.app42.userServiceHvrGetUser(HIDLauncher.app42.userGetUserName());
+//							HIDLauncher.app42.userServiceHvrSetSessionId(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("sessionIdHvr"));
+							HIDLauncher.log(this.getClass().toString(), "updated HardVacuumReloaded user " + HIDLauncher.app42.userGetFirstName());
+						}
+						((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
 					}
 				});
 			}
@@ -287,6 +300,14 @@ public class MainMenu implements Screen {
 			}
 			String[] data = new String[newItems.size()];
 			selProfile.setItems(newItems.toArray(data));
+			selProfile.addListener(new ClickListener() {
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					HIDLauncher.profile.setSelectedProfile(selProfile.getSelected());
+					HIDLauncher.profile.saveProfile();
+					((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+				}
+			});
 		}
 
 		// creating buttons
@@ -477,7 +498,7 @@ public class MainMenu implements Screen {
 				HIDLauncher.profile.setSelectedUser(null);
 				HIDLauncher.profile.setClientToken(null);
 				HIDLauncher.profile.saveProfile();
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Login());
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Login("", ""));
 				dispose();
 			}
 		});

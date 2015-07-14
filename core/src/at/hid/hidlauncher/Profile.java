@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Json;
 
 /**
  * @author dunkler_engel
@@ -52,10 +51,10 @@ public class Profile {
 		return selectedUser;
 	}
 	/**
-	 * @param profiles2 the profiles to set
+	 * @param profiles the profiles to set
 	 */
-	public void setProfiles(ArrayList<GameProfile> profiles2) {
-		this.profiles = profiles2;
+	public void setProfiles(ArrayList<GameProfile> profiles) {
+		this.profiles = profiles;
 	}
 	/**
 	 * @param authenticationDB the authenticationDB to set
@@ -147,19 +146,80 @@ public class Profile {
 	
 	/**
 	 * loads the profile from disk
-	 * @param saveDir name of the save directory
 	 * @return the Profile object
 	 */
-	public Profile loadProfile(String saveDir) {
-		Json json = new Json();
-		Profile profile = null;
+	public void loadProfile() {
+		JSONObject jsonProfile = null;
 		FileHandle fhSettings = Gdx.files.external(".hidlauncher/launcher_profiles.json");
 		try {
 			String profileAsText = fhSettings.readString();
-			profile = json.fromJson(Profile.class, profileAsText);
+			jsonProfile = new JSONObject(profileAsText);
+			if (jsonProfile.has("clientToken")) {
+				setClientToken(jsonProfile.getString("clientToken"));
+			}
+			if (jsonProfile.has("selectedUser")) {
+				setSelectedUser(jsonProfile.getString("selectedUser"));
+			}
+			if (jsonProfile.has("selectedProfile")) {
+				setSelectedProfile(jsonProfile.getString("selectedProfile"));
+			}
+			
+			if (jsonProfile.has("profiles")) {
+				ArrayList<GameProfile> profilesList = new ArrayList<GameProfile>();
+				JSONArray jsonArrayProfiles = new JSONArray(jsonProfile.getString("profiles"));
+				for (int i = 0; i < jsonArrayProfiles.length(); i++) {
+					JSONObject jsonArayProfile = jsonArrayProfiles.getJSONObject(i);
+					GameProfile gameProfile = new GameProfile(jsonArayProfile.getString("name"));
+					
+					if (jsonArayProfile.has("gameName")) {
+						gameProfile.setGameName(jsonArayProfile.getString("gameName"));
+					}
+					if (jsonArayProfile.has("resolutionX")) {
+						gameProfile.setResolutionX(jsonArayProfile.getInt("resolutionX"));
+						gameProfile.setResolutionY(jsonArayProfile.getInt("resolutionY"));
+					}
+					if (jsonArayProfile.has("askAssistance")) {
+						gameProfile.setAskAssistance(jsonArayProfile.getBoolean("askAssistance"));
+					}
+					if (jsonArayProfile.has("launcherVisibility")) {
+						gameProfile.setLauncherVisibility(jsonArayProfile.getInt("launcherVisibility"));
+					}
+					if (jsonArayProfile.has("useVersion")) {
+						gameProfile.setUseVersion(jsonArayProfile.getString("useVersion"));
+					}
+					
+					profilesList.add(gameProfile);
+				}
+				setProfiles(profilesList);
+			}
+			
+			if (jsonProfile.has("authenticationDB")) {
+				ArrayList<PlayerProfile> authenticationDBList = new ArrayList<PlayerProfile>();
+				JSONArray jsonArrayAuthenticationDB = new JSONArray(jsonProfile.getString("authenticationDB"));
+				for (int i = 0; i < jsonArrayAuthenticationDB.length(); i++) {
+					JSONObject jsonArrayAuthenticationDBEntry = jsonArrayAuthenticationDB.getJSONObject(i);
+					PlayerProfile playerProfile = new PlayerProfile();
+					
+					if (jsonArrayAuthenticationDBEntry.has("uuid")) {
+						playerProfile.setUuid(jsonArrayAuthenticationDBEntry.getString("uuid"));
+					}
+					if (jsonArrayAuthenticationDBEntry.has("displayName")) {
+						playerProfile.setDisplayName(jsonArrayAuthenticationDBEntry.getString("displayName"));
+					}
+					if (jsonArrayAuthenticationDBEntry.has("accessToken")) {
+						playerProfile.setAccessToken(jsonArrayAuthenticationDBEntry.getString("accessToken"));
+					}
+					if (jsonArrayAuthenticationDBEntry.has("username")) {
+						playerProfile.setUsername(jsonArrayAuthenticationDBEntry.getString("username"));
+					}
+					
+					authenticationDBList.add(playerProfile);
+				}
+				setAuthenticationDB(authenticationDBList);
+			}
+			
 		} catch (Exception e) {
 			HIDLauncher.error(this.getClass().toString(), "error reading settings file", e);
 		}
-		return profile;
 	}
 }
