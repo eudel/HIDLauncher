@@ -5,8 +5,11 @@ package at.hid.hidlauncher.screens;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
-import at.hid.hidlauncher.GameProfile;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import at.hid.hidlauncher.HIDLauncher;
 import at.hid.hidlauncher.PlayerProfile;
 
@@ -14,7 +17,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -34,19 +36,19 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
  * @author dunkler_engel
  *
  */
-public class Login implements Screen {
+public class Register implements Screen {
 
 	private Stage stage;
 	private TextureAtlas atlas;
 	private Skin skin;
 	private Table table;
-	private Label lblHeading, lblMail, lblPass, lblInfo;
+	private Label lblHeading, lblMail, lblPass, lblDisplayName;
 	private TextButton btnLogin, btnRegister;
-	private TextField txtMail, txtPass;
+	private TextField txtMail, txtPass, txtDisplayName;
 
 	private String mail, pass;
 
-	public Login(String mail, String pass) {
+	public Register(String mail, String pass) {
 		this.mail = mail;
 		this.pass = pass;
 	}
@@ -70,7 +72,7 @@ public class Login implements Screen {
 
 	@Override
 	public void show() {
-		HIDLauncher.debug(this.getClass().toString(), "creating Login screen");
+		HIDLauncher.debug(this.getClass().toString(), "creating Register screen");
 		stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 
 		Gdx.input.setInputProcessor(stage);
@@ -85,48 +87,53 @@ public class Login implements Screen {
 
 		// creating heading
 		HIDLauncher.debug(this.getClass().toString(), "creating heading");
-		lblHeading = new Label(HIDLauncher.getLangBundle().format("Login.lblHeading.text"), skin);
+		lblHeading = new Label(HIDLauncher.getLangBundle().format("Register.lblHeading.text"), skin);
 
 		// creating labels
 		HIDLauncher.debug(this.getClass().toString(), "creating labels");
-		lblMail = new Label(HIDLauncher.getLangBundle().format("Login.lblMail.text"), skin);
-		lblPass = new Label(HIDLauncher.getLangBundle().format("Login.lblPass.text"), skin);
-		lblInfo = new Label("", skin);
+		lblMail = new Label(HIDLauncher.getLangBundle().format("Register.lblMail.text"), skin);
+		lblPass = new Label(HIDLauncher.getLangBundle().format("Register.lblPass.text"), skin);
+		lblDisplayName = new Label(HIDLauncher.getLangBundle().format("Register.lblDisplayName.text"), skin);
 
 		// creating textfields
 		txtMail = new TextField(mail, skin);
 		txtPass = new TextField(pass, skin);
 		txtPass.setPasswordMode(true);
 		txtPass.setPasswordCharacter('*');
+		txtDisplayName = new TextField("", skin);
 
 		// creating buttons
 		HIDLauncher.debug(this.getClass().toString(), "creating buttons");
-		btnLogin = new TextButton(HIDLauncher.getLangBundle().format("Login.btnLogin.text"), skin);
+		btnLogin = new TextButton(HIDLauncher.getLangBundle().format("Register.btnLogin.text"), skin);
 		btnLogin.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				Gdx.app.getPreferences(HIDLauncher.TITLE).putString("pass", Base64Coder.encodeString(txtPass.getText()));
-				Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
-				if (doLogin(txtMail.getText(), txtPass.getText())) {
-					((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
-				} else {
-					lblInfo.setText(HIDLauncher.getLangBundle().format("Login.lblInfo.noinet"));
-					lblInfo.setColor(Color.RED);
-				}
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Login(txtMail.getText(), txtPass.getText()));
 			}
 		});
 		btnLogin.pad(10);
 
-		btnRegister = new TextButton(HIDLauncher.getLangBundle().format("Login.btnRegister.text"), skin);
+		btnRegister = new TextButton(HIDLauncher.getLangBundle().format("Register.btnRegister.text"), skin);
 		btnRegister.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				HIDLauncher.debug(this.getClass().toString(), "switching to Register screen");
-				//				Gdx.net.openURI("http://hidlauncher.hid-online.at/register.php");
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Register(txtMail.getText(), txtPass.getText()));
+				HIDLauncher.debug(this.getClass().toString(), "registering user " + txtDisplayName.getText());
+				if (HIDLauncher.inetConnection()) {
+					Gdx.app.getPreferences(HIDLauncher.TITLE).putString("pass", Base64Coder.encodeString(txtPass.getText()));
+					Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
+					doRegister(txtMail.getText(), txtPass.getText(), txtDisplayName.getText());
+					((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+				}
 			}
 		});
 		btnRegister.pad(10);
+
+		HIDLauncher.app42.userServiceGetAllUsers();
+		for (int i = 0; i < HIDLauncher.app42.userServiceGetUserCount(); i++) {
+			if (HIDLauncher.app42.userlistGetUserMail(i).equals(txtMail.getText())) {
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Login(mail, pass));
+			}
+		}
 
 		// building ui
 		HIDLauncher.debug(this.getClass().toString(), "building ui");
@@ -135,7 +142,8 @@ public class Login implements Screen {
 		table.add(txtMail).width(500).spaceBottom(15).row();
 		table.add(lblPass).spaceBottom(15).row();
 		table.add(txtPass).width(500).spaceBottom(15).row();
-		table.add(lblInfo).spaceBottom(15).row();
+		table.add(lblDisplayName).spaceBottom(15).row();
+		table.add(txtDisplayName).width(500).spaceBottom(15).row();
 		HorizontalGroup hg1 = new HorizontalGroup();
 		hg1.addActor(btnRegister);
 		hg1.addActor(btnLogin);
@@ -164,52 +172,53 @@ public class Login implements Screen {
 
 	@Override
 	public void dispose() {
-		HIDLauncher.debug(this.getClass().toString(), "cleaning up Login screen");
+		HIDLauncher.debug(this.getClass().toString(), "cleaning up Register screen");
 		stage.dispose();
 		atlas.dispose();
 		skin.dispose();
 	}
 
-	public boolean doLogin(String user, String pass) {
+	public void doRegister(String mail, String pass, String displayName) {
+		String user = UUID.randomUUID().toString();
+
+		HIDLauncher.app42.createUser(user, pass, mail);
+		HIDLauncher.app42.getUserByMail(mail);
+		HIDLauncher.app42.userSetFirstName(displayName);
+		HIDLauncher.app42.userServiceCreateOrUpdateProfile();
+
+		HIDLauncher.profile.setSelectedUser(user);
 		HashMap<String, String> otherMetaHeaders = new HashMap<String, String>();
 		otherMetaHeaders.put("emailAuth", "true");
 		otherMetaHeaders.put("userProfile", "true");
 		HIDLauncher.app42.userServiceSetOtherMetaHeaders(otherMetaHeaders);
+		HIDLauncher.app42.userServiceAuthenticate(txtMail.getText(), txtPass.getText());
+		HIDLauncher.profile.setClientToken(HIDLauncher.app42.userGetSessionId());
+		HIDLauncher.playerProfile.setDisplayName(displayName);
 
-		if (HIDLauncher.inetConnection()) {
-			if (HIDLauncher.app42.userServiceAuthenticate(txtMail.getText(), txtPass.getText()) == false) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Register(txtMail.getText(), txtPass.getText()));
-				return false;
-			} else {
-				String uuid = HIDLauncher.app42.userGetUserName();
-				if (!uuid.isEmpty()) {
-					HIDLauncher.app42.getUser(uuid);
-					HIDLauncher.profile.setSelectedUser(uuid);
-					HIDLauncher.playerProfile.setDisplayName(HIDLauncher.app42.userGetFirstName());
+		ArrayList<PlayerProfile> authenticationDB = new ArrayList<PlayerProfile>();
 
-					ArrayList<GameProfile> profiles = new ArrayList<GameProfile>();
-					profiles.add(new GameProfile(HIDLauncher.app42.userGetFirstName()));
-					HIDLauncher.profile.setProfiles(profiles);
-					
-					ArrayList<PlayerProfile> authenticationDB = new ArrayList<PlayerProfile>();
-					authenticationDB.add(new PlayerProfile(HIDLauncher.profile.getSelectedProfile(), "", uuid, HIDLauncher.profile.getSelectedProfile()));
-					HIDLauncher.profile.setAuthenticationDB(authenticationDB);
-					Json json = new Json();
-
-					try {
-						FileHandle fhLauncherProfiles = Gdx.files.external(".hidlauncher/launcher_profiles.json");
-						String profileAsText = json.prettyPrint(HIDLauncher.profile);
-						fhLauncherProfiles.writeString(profileAsText, false, "UTF-8");
-					} catch (Exception e) {
-						HIDLauncher.error(this.getClass().getName(), "error writing launcher_profiles.json file", e);
-					}
-
-				}
-			}
+		FileHandle fhLauncherProfiles = null;
+		if (Gdx.files.isExternalStorageAvailable()) {
+			fhLauncherProfiles = Gdx.files.external(".hidlauncher/launcher_profiles.json");
 		} else {
-			HIDLauncher.error(this.getClass().toString(), "no internet connection available");
-			return false;
+			fhLauncherProfiles = Gdx.files.internal(".hidlauncher/launcher_profiles.json");
 		}
-		return true;
+		if (fhLauncherProfiles.exists()) {
+			try {
+				JSONObject launcherProfilesJSON = new JSONObject(fhLauncherProfiles.readString("UTF-8"));
+				JSONArray authenticationDBJSON = new JSONArray(launcherProfilesJSON.get("authenticationDB").toString());
+				for (int i = 0; i < authenticationDBJSON.length(); i++) {
+					JSONObject authenticationDBEntryJSON = authenticationDBJSON.getJSONObject(i);
+					authenticationDB.add(new PlayerProfile(authenticationDBEntryJSON.getString("username"), authenticationDBEntryJSON.getString("accessToken"), authenticationDBEntryJSON.getString("uuid"), authenticationDBEntryJSON.getString("displayName")));
+				}
+			} catch (Exception e) {
+				HIDLauncher.error(this.getClass().toString(), "error reading authenticationDB", e);
+			}
+		}
+
+		authenticationDB.add(new PlayerProfile(displayName, "", user, displayName));
+		HIDLauncher.profile.setAuthenticationDB(authenticationDB);
+
+		HIDLauncher.profile.saveProfile();
 	}
 }
