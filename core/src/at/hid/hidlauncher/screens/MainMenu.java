@@ -429,7 +429,7 @@ public class MainMenu implements Screen {
 					HIDLauncher.app42.storageServiceFindAllDocuments(dbName, collectionName);
 					HIDLauncher.app42.storageGetJsonDocList();
 					ArrayList<String> saveNames = HIDLauncher.app42.storageGetSaveValues("name");
-					ArrayList<String> saveVersions = HIDLauncher.app42.storageGetSaveValues("version");
+//					ArrayList<String> saveVersions = HIDLauncher.app42.storageGetSaveValues("version");
 					int indexSelectedGame = 0;
 
 					for (int i = 0; i < saveNames.size(); i++) {

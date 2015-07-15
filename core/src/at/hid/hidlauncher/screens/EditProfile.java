@@ -7,8 +7,6 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-
 import at.hid.hidlauncher.GameProfile;
 import at.hid.hidlauncher.HIDLauncher;
 import at.hid.hidlauncher.PlayerProfile;
