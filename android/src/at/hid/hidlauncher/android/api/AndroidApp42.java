@@ -77,11 +77,15 @@ public class AndroidApp42 implements App42 {
 	@Override
 	public boolean userServiceAuthenticate(String uName, String pwd) {
 		try {
+		HashMap<String, String> otherMetaHeaders = new HashMap<String, String>();
+		otherMetaHeaders.put("emailAuth", "true");
+		userService.setOtherMetaHeaders(otherMetaHeaders);
 			user = userService.authenticate(uName, pwd);
+			HIDLauncher.profile.setClientToken(user.getSessionId());
 		} catch (App42Exception e) {
 			return false;
 		}
-		if (user != null) {
+		if (user != null && user.getEmail() != null) {
 			return true;
 		} else {
 			return false;
@@ -251,7 +255,7 @@ public class AndroidApp42 implements App42 {
 	
 	@Override
 	public void userServiceTtsCreateUser(String uName, String pwd, String emailAddress) {
-		userTts = userServiceTts.createUser(uName, pwd, emailAddress);
+		userTts = userServiceTts.createUserWithProfile(uName, pwd, emailAddress, user.getProfile());
 	}
 	
 	@Override
@@ -317,7 +321,7 @@ public class AndroidApp42 implements App42 {
 
 	@Override
 	public void userServiceHvrCreateUser(String uName, String pwd, String emailAddress) {
-		userHvr = userServiceHvr.createUser(uName, pwd, emailAddress);
+		userHvr = userServiceHvr.createUserWithProfile(uName, pwd, emailAddress, user.getProfile());
 	}
 	
 	@Override

@@ -265,7 +265,7 @@ public class DesktopApp42 implements App42 {
 	
 	@Override
 	public void userServiceTtsAuthenticate(String uName, String pwd) {
-		userTts = userServiceTts.authenticateAndCreateSession(uName, pwd);
+		userTts = userServiceTts.authenticate(uName, pwd);
 	}
 	
 	@Override

@@ -253,10 +253,10 @@ public class MainMenu implements Screen {
 						if (userTtsCreated == false) {
 							String pwd = Base64Coder.decodeString(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("pass"));
 							HIDLauncher.app42.userServiceTtsCreateUser(HIDLauncher.app42.userGetUserName(), pwd, HIDLauncher.app42.userGetEmail());
-							HIDLauncher.app42.userServiceTtsAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
+//							HIDLauncher.app42.userServiceTtsAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
 							HIDLauncher.app42.userServiceTtsGetUser(HIDLauncher.app42.userGetUserName());
 //							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdTts", HIDLauncher.app42.userServiceTtsGetSessionId());
-							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
+//							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
 							HIDLauncher.log(this.getClass().toString(), "created TableTopSimulator user " + HIDLauncher.app42.userGetFirstName());
 						} else {
 							HIDLauncher.app42.userServiceTtsGetUser(HIDLauncher.app42.userGetUserName());
@@ -273,10 +273,10 @@ public class MainMenu implements Screen {
 						if (userHvrCreated == false) {
 							String pwd = Base64Coder.decodeString(Gdx.app.getPreferences(HIDLauncher.TITLE).getString("pass"));
 							HIDLauncher.app42.userServiceHvrCreateUser(HIDLauncher.app42.userGetUserName(), pwd, HIDLauncher.app42.userGetEmail());
-							HIDLauncher.app42.userServiceHvrAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
+//							HIDLauncher.app42.userServiceHvrAuthenticate(HIDLauncher.app42.userGetUserName(), pwd);
 							HIDLauncher.app42.userServiceHvrGetUser(HIDLauncher.app42.userGetUserName());
 //							Gdx.app.getPreferences(HIDLauncher.TITLE).putString("sessionIdHvr", HIDLauncher.app42.userServiceHvrGetSessionId());
-							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
+//							Gdx.app.getPreferences(HIDLauncher.TITLE).flush();
 							HIDLauncher.log(this.getClass().toString(), "created HardVacuumReloaded user " + HIDLauncher.app42.userGetFirstName());
 						} else {
 							HIDLauncher.app42.userServiceHvrGetUser(HIDLauncher.app42.userGetUserName());
